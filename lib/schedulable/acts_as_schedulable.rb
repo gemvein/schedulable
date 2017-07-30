@@ -27,7 +27,11 @@ module Schedulable
             occurrences_association = options[:occurrences][:name]
             options[:occurrences].delete(:name)
           end
-          options[:occurrences][:class_name] = occurrences_association.to_s.classify
+          if options[:class_name].is_a?(String)
+            options[:occurrences][:class_name] = options[:class_name]
+          else
+            options[:occurrences][:class_name] = occurrences_association.to_s.classify
+          end
           options[:occurrences][:as]||= :schedulable
           options[:occurrences][:dependent]||:destroy
           options[:occurrences][:autosave]||= true
@@ -49,7 +53,7 @@ module Schedulable
           
           ActsAsSchedulable.add_occurrences_association(self, occurrences_association)
           
-          after_save "build_#{occurrences_association}"
+          after_save "build_#{occurrences_association}".to_sym
  
           self.class.instance_eval do
             define_method("build_#{occurrences_association}") do 
